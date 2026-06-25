@@ -361,5 +361,58 @@
     </p>
   </footer>
 
+
+  <script>
+    // ── Dummy cookies across all four CCM categories ──────────────
+    // These simulate real-world cookies so the Securiti CCM scanner
+    // and consent banner have something meaningful to classify.
+
+    function setCookie(name, value, days, sameSite) {
+      var expires = "";
+      if (days) {
+        var d = new Date();
+        d.setTime(d.getTime() + days * 864e5);
+        expires = "; expires=" + d.toUTCString();
+      }
+      document.cookie = name + "=" + value + expires
+        + "; path=/"
+        + "; SameSite=" + (sameSite || "Lax");
+    }
+
+    // ── 1. Strictly Necessary ────────────────────────────────────
+    setCookie("session_id",      "sess_" + Math.random().toString(36).slice(2), 0);   // session
+    setCookie("csrf_token",      "csrf_" + Math.random().toString(36).slice(2), 1);
+    setCookie("cart_id",         "cart_abc123xyz",  7);
+    setCookie("auth_state",      "guest",           0);
+
+    // ── 2. Functional / Preferences ─────────────────────────────
+    setCookie("user_lang",       "en-US",           365);
+    setCookie("currency",        "USD",             365);
+    setCookie("theme",           "light",           365);
+    setCookie("recently_viewed", "prod_42|prod_17", 30);
+
+    // ── 3. Analytics ─────────────────────────────────────────────
+    setCookie("_ga",             "GA1.2." + Date.now(), 730);   // Google Analytics style
+    setCookie("_gid",            "GA1.2." + Math.floor(Math.random() * 1e9), 1);
+    setCookie("_gat_UA",         "1",                1);
+    setCookie("analytics_uuid",  "anl_" + Math.random().toString(36).slice(2), 180);
+    setCookie("page_views",      "1",               30);
+    setCookie("session_source",  "direct",           0);
+
+    // ── 4. Marketing / Advertising ───────────────────────────────
+    setCookie("_fbp",            "fb.1." + Date.now() + "." + Math.floor(Math.random() * 1e9), 90);  // Meta Pixel style
+    setCookie("_ttp",            "tt_" + Math.random().toString(36).slice(2), 365);  // TikTok Pixel style
+    setCookie("ad_id",           "adid_" + Math.random().toString(36).slice(2), 90);
+    setCookie("campaign_ref",    "summer_sale_2026", 30);
+    setCookie("retargeting",     "1",               60);
+    setCookie("li_fat_id",       "li_" + Math.random().toString(36).slice(2), 30);   // LinkedIn style
+
+    // ── Increment page view counter ──────────────────────────────
+    (function () {
+      var pv = parseInt(document.cookie.replace(/(?:(?:^|.*;\s*)page_views\s*=\s*([^;]*).*$)|^.*$/, "$1") || "0");
+      setCookie("page_views", pv + 1, 30);
+    })();
+  </script>
+
 </body>
 </html>
