@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Demo Store — a sample website for testing Securiti Cookie Consent Management" />
+  <title>Demo Store | Cookie Consent Test Site</title>
+
+  <!-- ============================================================
+       SECURITI COOKIE CONSENT MANAGEMENT (CCM)
+       ============================================================
+       TODO: Replace the script src and config values below with
+             your real Securiti tenant/domain settings.
+
+       Typical integration:
+         1. Set window.privacy_config before the SDK loads.
+         2. Load consent.js from your CDN/packaging URL.
+
+       Example:
+         <script>
+           window.privacy_config = {
+             tenant_id:  "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+             domain_id:  "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+           };
+         </script>
+         <script src="https://app.securiti.ai/consent/sdk/consent.js" async></script>
+       ============================================================ -->
+  <script type="text/javascript">
+    window.privacy_config = {
+      tenant_id: "YOUR_TENANT_UUID",   // TODO: replace
+      domain_id: "YOUR_DOMAIN_UUID",   // TODO: replace
+    };
+  </script>
+  <script
+    type="text/javascript"
+    src="https://app.securiti.ai/consent/sdk/consent.js"
+    async
+  ></script>
+  <!-- ============================================================ -->
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --brand:   #0052cc;
+      --accent:  #ff5630;
+      --bg:      #f4f5f7;
+      --surface: #ffffff;
+      --text:    #172b4d;
+      --muted:   #6b778c;
+      --radius:  8px;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    /* ── NAV ────────────────────────────────────────────────────── */
+    nav {
+      background: var(--surface);
+      border-bottom: 1px solid #e1e4e8;
+      padding: 0 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 60px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .nav-logo {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--brand);
+      text-decoration: none;
+    }
+    .nav-links { display: flex; gap: 1.5rem; list-style: none; }
+    .nav-links a {
+      text-decoration: none;
+      color: var(--muted);
+      font-size: 0.9rem;
+      transition: color 0.15s;
+    }
+    .nav-links a:hover { color: var(--brand); }
+
+    /* ── HERO ───────────────────────────────────────────────────── */
+    .hero {
+      background: linear-gradient(135deg, var(--brand) 0%, #0747a6 100%);
+      color: #fff;
+      text-align: center;
+      padding: 4rem 1.5rem;
+    }
+    .hero h1 { font-size: clamp(1.75rem, 4vw, 2.75rem); margin-bottom: 1rem; }
+    .hero p  { font-size: 1.1rem; opacity: 0.85; max-width: 540px; margin: 0 auto 2rem; }
+    .btn {
+      display: inline-block;
+      padding: 0.75rem 1.75rem;
+      border-radius: var(--radius);
+      font-weight: 600;
+      text-decoration: none;
+      cursor: pointer;
+      border: none;
+      font-size: 1rem;
+      transition: opacity 0.15s, transform 0.1s;
+    }
+    .btn:hover { opacity: 0.88; transform: translateY(-1px); }
+    .btn-primary  { background: var(--accent); color: #fff; }
+    .btn-outline  { background: transparent; color: #fff; border: 2px solid #fff; }
+
+    /* ── PRODUCTS ───────────────────────────────────────────────── */
+    .section { padding: 3rem 1.5rem; max-width: 1100px; margin: 0 auto; }
+    .section-title { font-size: 1.5rem; font-weight: 700; margin-bottom: 0.5rem; }
+    .section-sub   { color: var(--muted); margin-bottom: 2rem; font-size: 0.95rem; }
+
+    .product-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 1.25rem;
+    }
+    .card {
+      background: var(--surface);
+      border-radius: var(--radius);
+      overflow: hidden;
+      box-shadow: 0 1px 3px rgba(0,0,0,.1);
+      transition: box-shadow 0.2s, transform 0.15s;
+    }
+    .card:hover { box-shadow: 0 4px 12px rgba(0,0,0,.15); transform: translateY(-2px); }
+    .card-img {
+      width: 100%;
+      aspect-ratio: 4/3;
+      object-fit: cover;
+      background: #dfe1e6;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 3rem;
+    }
+    .card-body { padding: 1rem; }
+    .card-name  { font-weight: 600; margin-bottom: 0.25rem; }
+    .card-price { color: var(--accent); font-weight: 700; font-size: 1.1rem; }
+    .card-muted { color: var(--muted); font-size: 0.8rem; margin-top: 0.25rem; }
+    .card-btn   {
+      display: block;
+      width: 100%;
+      margin-top: 0.75rem;
+      padding: 0.5rem;
+      background: var(--brand);
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      font-weight: 600;
+      text-align: center;
+      transition: background 0.15s;
+    }
+    .card-btn:hover { background: #0747a6; }
+
+    /* ── FEATURES ───────────────────────────────────────────────── */
+    .features-strip {
+      background: var(--surface);
+      border-top: 1px solid #e1e4e8;
+      border-bottom: 1px solid #e1e4e8;
+    }
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 1rem;
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 2rem 1.5rem;
+      text-align: center;
+    }
+    .feature-icon { font-size: 2rem; margin-bottom: 0.5rem; }
+    .feature-title { font-weight: 600; font-size: 0.95rem; }
+    .feature-desc  { color: var(--muted); font-size: 0.82rem; margin-top: 0.25rem; }
+
+    /* ── NEWSLETTER ─────────────────────────────────────────────── */
+    .newsletter {
+      background: #e8f0fe;
+      padding: 3rem 1.5rem;
+      text-align: center;
+    }
+    .newsletter h2 { font-size: 1.4rem; margin-bottom: 0.5rem; }
+    .newsletter p  { color: var(--muted); margin-bottom: 1.5rem; font-size: 0.95rem; }
+    .newsletter-form { display: flex; gap: 0.5rem; max-width: 420px; margin: 0 auto; flex-wrap: wrap; justify-content: center; }
+    .newsletter-form input {
+      flex: 1;
+      min-width: 200px;
+      padding: 0.65rem 1rem;
+      border: 1px solid #c1c7d0;
+      border-radius: var(--radius);
+      font-size: 0.95rem;
+      outline: none;
+    }
+    .newsletter-form input:focus { border-color: var(--brand); box-shadow: 0 0 0 2px #0052cc33; }
+
+    /* ── FOOTER ─────────────────────────────────────────────────── */
+    footer {
+      background: #172b4d;
+      color: #b3bac5;
+      padding: 2rem 1.5rem;
+      font-size: 0.85rem;
+    }
+    .footer-inner {
+      max-width: 1100px;
+      margin: 0 auto;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1.5rem;
+      justify-content: space-between;
+    }
+    .footer-links { display: flex; gap: 1.25rem; flex-wrap: wrap; }
+    .footer-links a { color: #b3bac5; text-decoration: none; }
+    .footer-links a:hover { color: #fff; }
+    .footer-copy { color: #6b778c; margin-top: 1.5rem; text-align: center; max-width: 1100px; margin-left: auto; margin-right: auto; }
+
+    @media (max-width: 600px) {
+      .nav-links { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Navigation -->
+  <nav>
+    <a class="nav-logo" href="#">DemoStore</a>
+    <ul class="nav-links">
+      <li><a href="#">Home</a></li>
+      <li><a href="#">Products</a></li>
+      <li><a href="#">About</a></li>
+      <li><a href="#">Contact</a></li>
+      <li><a href="#">Privacy Policy</a></li>
+    </ul>
+  </nav>
+
+  <!-- Hero -->
+  <section class="hero">
+    <h1>Quality Products, Delivered Fast</h1>
+    <p>Shop thousands of items with free shipping on orders over $50. New arrivals every week.</p>
+    <a href="#" class="btn btn-primary">Shop Now</a>
+    &nbsp;
+    <a href="#" class="btn btn-outline">Learn More</a>
+  </section>
+
+  <!-- Feature strip -->
+  <div class="features-strip">
+    <div class="features-grid">
+      <div>
+        <div class="feature-icon">🚚</div>
+        <div class="feature-title">Free Shipping</div>
+        <div class="feature-desc">On orders over $50</div>
+      </div>
+      <div>
+        <div class="feature-icon">↩️</div>
+        <div class="feature-title">Easy Returns</div>
+        <div class="feature-desc">30-day hassle-free returns</div>
+      </div>
+      <div>
+        <div class="feature-icon">🔒</div>
+        <div class="feature-title">Secure Checkout</div>
+        <div class="feature-desc">256-bit SSL encryption</div>
+      </div>
+      <div>
+        <div class="feature-icon">💬</div>
+        <div class="feature-title">24/7 Support</div>
+        <div class="feature-desc">Chat, email, or call us</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Products -->
+  <section class="section">
+    <h2 class="section-title">Featured Products</h2>
+    <p class="section-sub">Handpicked items just for you</p>
+
+    <div class="product-grid">
+      <div class="card">
+        <div class="card-img">👟</div>
+        <div class="card-body">
+          <div class="card-name">Running Shoes Pro</div>
+          <div class="card-price">$89.99</div>
+          <div class="card-muted">Free shipping eligible</div>
+          <button class="card-btn">Add to Cart</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-img">🎧</div>
+        <div class="card-body">
+          <div class="card-name">Wireless Headphones</div>
+          <div class="card-price">$149.00</div>
+          <div class="card-muted">30-day returns</div>
+          <button class="card-btn">Add to Cart</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-img">⌚</div>
+        <div class="card-body">
+          <div class="card-name">Smart Watch Series X</div>
+          <div class="card-price">$299.99</div>
+          <div class="card-muted">Bestseller</div>
+          <button class="card-btn">Add to Cart</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-img">💻</div>
+        <div class="card-body">
+          <div class="card-name">Laptop Stand Deluxe</div>
+          <div class="card-price">$49.95</div>
+          <div class="card-muted">Adjustable height</div>
+          <button class="card-btn">Add to Cart</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-img">📷</div>
+        <div class="card-body">
+          <div class="card-name">Mirrorless Camera</div>
+          <div class="card-price">$799.00</div>
+          <div class="card-muted">New arrival</div>
+          <button class="card-btn">Add to Cart</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-img">🎮</div>
+        <div class="card-body">
+          <div class="card-name">Gaming Controller</div>
+          <div class="card-price">$59.99</div>
+          <div class="card-muted">Cross-platform</div>
+          <button class="card-btn">Add to Cart</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Newsletter -->
+  <div class="newsletter">
+    <h2>Stay in the Loop</h2>
+    <p>Get exclusive deals and early access to new arrivals — straight to your inbox.</p>
+    <div class="newsletter-form">
+      <input type="email" placeholder="you@example.com" />
+      <button class="btn btn-primary">Subscribe</button>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer>
+    <div class="footer-inner">
+      <span><strong style="color:#fff">DemoStore</strong> — Cookie Consent Test Site</span>
+      <div class="footer-links">
+        <a href="#">Privacy Policy</a>
+        <a href="#">Cookie Policy</a>
+        <a href="#">Terms of Use</a>
+        <a href="#">Contact</a>
+      </div>
+    </div>
+    <p class="footer-copy">
+      &copy; 2026 DemoStore. This is a test site for Securiti Cookie Consent Management integration.
+    </p>
+  </footer>
+
+</body>
+</html>
