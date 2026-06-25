@@ -10,12 +10,6 @@
        After adding this script, call setConsentBannerParams({uuid: <unique id> }) to set unique ID for a customer. -->
   <script>
   (function () {
-      // Do not load the CCM SDK on mobile devices — consent is handled
-      // natively by the mobile app via the Mobile Cookie Consent Sync flow.
-      var isMobile = /Mobi|Android|iPhone|iPad|iPod|Windows Phone/i.test(navigator.userAgent)
-                     || window.innerWidth <= 768;
-      if (isMobile) return;
-
       var s = document.createElement('script');
       s.src = 'https://cdn-dev-intg-9.securiti.xyz/consent/cookie-consent-sdk-loader.js';
       s.setAttribute('data-tenant-uuid', '79566875-3741-4218-8dbf-3cb421fc1c09');
@@ -217,15 +211,14 @@
 
     @media (max-width: 768px) {
       .nav-links { display: none; }
-      /* Hide CCM banner, preference center, and trigger button on mobile */
+      /* Hide only the visible banner UI and trigger button on mobile.
+         The SDK itself still loads so MCM consent can be synced into it
+         via setConsentBannerParams() from the native app WebView bridge. */
       .cmp-revoke-consent,
       #securiti-consent-banner,
       .securiti-banner,
       .cmp-banner,
-      #cmp-main,
-      [id^="cmp-"],
-      [class^="cmp-"],
-      [class*=" cmp-"] { display: none !important; }
+      #cmp-main { display: none !important; }
     }
   </style>
 </head>
