@@ -6,6 +6,38 @@
   <meta name="description" content="Demo Store — a sample website for testing Securiti Cookie Consent Management" />
   <title>Demo Store | Cookie Consent Test Site</title>
 
+  <!-- SecuritiDataLayer MUST be initialised before the SDK loader so that
+       beforeLoad and beforeRenderBanner fire correctly. -->
+  <script>
+  window.SecuritiDataLayer = window.SecuritiDataLayer || [];
+
+  var _isMobileView = /Mobi|Android|iPhone|iPad|iPod|Windows Phone/i.test(navigator.userAgent)
+                      || window.innerWidth <= 768;
+
+  // 1. beforeLoad — cleanest hook: stops the SDK from auto-displaying
+  //    the banner on startup when running inside a mobile WebView.
+  //    Consent is collected natively by the MCM layer instead.
+  SecuritiDataLayer.push([
+    'beforeLoad',
+    function (bareSdk) {
+      if (_isMobileView) {
+        bareSdk.stopShowingBanner();
+      }
+    }
+  ]);
+
+  // 2. beforeRenderBanner — safety net in case the banner is triggered
+  //    programmatically after load (e.g. a race condition on resize).
+  SecuritiDataLayer.push([
+    'beforeRenderBanner',
+    function (sdk) {
+      if (_isMobileView) {
+        sdk.closeBanner();
+      }
+    }
+  ]);
+  </script>
+
   <!-- THIS CODE IS FOR TESTING PURPOSE ONLY, DO NOT USE IT IN PRODUCTION.
        After adding this script, call setConsentBannerParams({uuid: <unique id> }) to set unique ID for a customer. -->
   <script>
