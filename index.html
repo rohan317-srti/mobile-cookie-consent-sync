@@ -14,12 +14,16 @@
   var _isMobileView = /Mobi|Android|iPhone|iPad|iPod|Windows Phone/i.test(navigator.userAgent)
                       || window.innerWidth <= 768;
 
-  // 1. beforeLoad — cleanest hook: stops the SDK from auto-displaying
-  //    the banner on startup when running inside a mobile WebView.
-  //    Consent is collected natively by the MCM layer instead.
+  // 1. beforeLoad — inject UUID for backend consent restore (Layer 1)
+  //    and suppress the visual banner on mobile (consent handled natively).
   SecuritiDataLayer.push([
     'beforeLoad',
     function (bareSdk) {
+      // Link this CCM session to the native MCM subject so the backend
+      // can restore previously stored consent without showing a banner.
+      var uuid = new URLSearchParams(window.location.search).get('subjectId');
+      if (uuid) bareSdk.setUuid(uuid);
+
       if (_isMobileView) {
         bareSdk.stopShowingBanner();
       }
@@ -444,6 +448,44 @@
       var pv = parseInt(document.cookie.replace(/(?:(?:^|.*;\s*)page_views\s*=\s*([^;]*).*$)|^.*$/, "$1") || "0");
       setCookie("page_views", pv + 1, 30);
     })();
+  </script>
+
+  <script>
+    // ── MCM → CCM consent sync bridge (Layer 2) ──────────────────
+    // Called by the native Android / iOS app via evaluateJavascript
+    // after the user interacts with the MCM consent banner.
+    //
+    // payload: { purposes: [...], allNonEssentialGranted: boolean }
+    window.onMobileConsentSync = function (payload) {
+      try {
+        var data = typeof payload === 'string' ? JSON.parse(payload) : payload;
+
+        if (!window.SecuritiSDK || typeof window.SecuritiSDK.onReady !== 'function') {
+          // SDK loader hasn't finished yet — queue and drain on onReady
+          window._pendingMobileSync = data;
+          return;
+        }
+
+        window.SecuritiSDK.onReady(function (sdk) {
+          if (data.allNonEssentialGranted) {
+            sdk.acceptAll();
+          } else {
+            sdk.rejectAll();
+          }
+          console.log('[MCM-Sync] applied:', data.allNonEssentialGranted ? 'acceptAll' : 'rejectAll');
+        });
+      } catch (e) {
+        console.error('[MCM-Sync] payload error', e);
+      }
+    };
+
+    // Drain any queued payload that arrived before the SDK was ready
+    window.SecuritiSDK && window.SecuritiSDK.onReady(function () {
+      if (window._pendingMobileSync) {
+        window.onMobileConsentSync(window._pendingMobileSync);
+        window._pendingMobileSync = null;
+      }
+    });
   </script>
 
 </body>
